@@ -1,5 +1,7 @@
 jupyter
-numpy
+numpy==2.0.0rc1
 pandas
 matplotlib
 seaborn
+joblib
+pygad
