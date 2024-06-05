@@ -36,8 +36,8 @@ WINDOW_HEIGHT = CELL_SIZE * GRID_HEIGHT
 COLOR_BG = (0, 0, 0)
 COLOR_GRID = (40, 40, 40)
 COLOR_ALIVE = (255, 255, 255)
-COLOR_NEWBORN = (200, 200, 200)
-COLOR_DIED = (100, 100, 100)
+COLOR_NEWBORN = (200, 200, 200)  # kolor świeżo urodzonej komórki
+COLOR_DIED = (100, 100, 100)  # kolor świeżo umarłej komórki
 
 # Inicjalizacja Pygame
 pygame.init()
@@ -60,15 +60,15 @@ def update(grid, rule):
     new_grid = np.copy(grid)
     for y in range(GRID_HEIGHT):
         for x in range(GRID_WIDTH):
-            # grid[(y - 1) % GRID_HEIGHT, (x - 1) % GRID_WIDTH]
-            # this refers to a cell that is one row higher and one column to the left of the current cell
-            # % is a modulo operation that ensures that indices are always within the boundaries of the board
+            # na podstawie sąsiedztwa (góra, dół, lewo, prawo i po skosie) obliczamy następny stan komórki
+            # % to operacja modulo, która zapewnia, że indeksy zawsze znajdują się w granicach (zapętlają się)
             num_alive_neighbors = (
                 grid[(y - 1) % GRID_HEIGHT, (x - 1) % GRID_WIDTH] + grid[(y - 1) % GRID_HEIGHT, x % GRID_WIDTH] +
                 grid[(y - 1) % GRID_HEIGHT, (x + 1) % GRID_WIDTH] + grid[y % GRID_HEIGHT, (x - 1) % GRID_WIDTH] +
                 grid[y % GRID_HEIGHT, (x + 1) % GRID_WIDTH] + grid[(y + 1) % GRID_HEIGHT, (x - 1) % GRID_WIDTH] +
                 grid[(y + 1) % GRID_HEIGHT, x % GRID_WIDTH] + grid[(y + 1) % GRID_HEIGHT, (x + 1) % GRID_WIDTH]
             )
+            # implementacje innych reguł
             if rule == 'Conway':
                 if grid[y, x] == 1:
                     if num_alive_neighbors < 2 or num_alive_neighbors > 3:
@@ -135,21 +135,25 @@ def main():
     running = True
     paused = False
     speed = 5
-    rule = 'Conway'  # default rule
+    rule = 'Conway'  # domyślna reguła
 
     while running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
             elif event.type == pygame.KEYDOWN:
+                # pauza po spacji
                 if event.key == pygame.K_SPACE:
                     paused = not paused
+                # nowa konfiguracja po kliknięciu enter
                 elif event.key == pygame.K_RETURN:
                     grid = random_grid()
+                # klawisze strzałek w górę i w dół zmieniają prędkość
                 elif event.key == pygame.K_UP:
                     speed = min(60, speed + 1)
                 elif event.key == pygame.K_DOWN:
                     speed = max(1, speed - 1)
+                # klawisze od 1 do 5 zmieniają regułę
                 elif event.key == pygame.K_1:
                     rule = 'Conway'
                 elif event.key == pygame.K_2:
@@ -160,6 +164,7 @@ def main():
                     rule = '34Life'
                 elif event.key == pygame.K_5:
                     rule = 'Seeds'
+            # dodawanie/usuwanie komórkek kliknięciem myszki
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 x, y = pygame.mouse.get_pos()
                 toggle_cell(grid, x // CELL_SIZE, y // CELL_SIZE)
