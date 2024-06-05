@@ -26,6 +26,7 @@ win = pygame.display.set_mode((width, height))
 pygame.display.set_caption("SIR Model with Death")
 clock = pygame.time.Clock()
 cell_size = 10
+# czyli mamy siatke 50x50
 
 # Parametry modelu
 prob_infection = 0.2  # prawdopodobieństwo infekcji
