@@ -29,7 +29,7 @@ cell_size = 10
 
 # Parametry modelu
 prob_infection = 0.2  # prawdopodobieństwo infekcji
-prob_death = 0.01  # prawdopodobieństwo śmierci przy infekcji 1%
+prob_death = 0.01  # prawdopodobieństwo śmierci przy infekcji
 prob_recovery = 0.05  # prawdopodobieństwo wyzdrowienia
 
 # Stany komórek
@@ -66,13 +66,13 @@ def update_grid(grid):
 def draw_grid(win, grid):
     for i in range(grid_size):
         for j in range(grid_size):
-            color = (0, 0, 255)  # niebieski dla podatnych
+            color = (0, 0, 255)  # niebieski dla susceptible
             if grid[i, j] == INFECTED:
-                color = (255, 0, 0)  # czerwony dla zainfekowanych
+                color = (255, 0, 0)  # czerwony dla infected
             elif grid[i, j] == RECOVERED:
-                color = (0, 255, 0)  # zielony dla wyzdrowiałych
+                color = (0, 255, 0)  # zielony dla recovered
             elif grid[i, j] == DEAD:
-                color = (0, 0, 0)  # czarny dla martwych
+                color = (0, 0, 0)  # czarny dla dead
             pygame.draw.rect(win, color, (i * cell_size, j * cell_size, cell_size, cell_size))
 
 
