@@ -55,23 +55,50 @@ def toggle_cell(grid, x, y):
     grid[y][x] = not grid[y][x]
 
 
-# Aktualizacja stanu automatu komórkowego
-def update(grid):
+# Aktualizacja stanu automatu komórkowego dla wybranej reguły
+def update(grid, rule):
     new_grid = np.copy(grid)
     for y in range(GRID_HEIGHT):
         for x in range(GRID_WIDTH):
+            # grid[(y - 1) % GRID_HEIGHT, (x - 1) % GRID_WIDTH]
+            # this refers to a cell that is one row higher and one column to the left of the current cell
+            # % is a modulo operation that ensures that indices are always within the boundaries of the board
             num_alive_neighbors = (
-                    grid[(y - 1) % GRID_HEIGHT, (x - 1) % GRID_WIDTH] + grid[(y - 1) % GRID_HEIGHT, x % GRID_WIDTH] +
-                    grid[(y - 1) % GRID_HEIGHT, (x + 1) % GRID_WIDTH] + grid[y % GRID_HEIGHT, (x - 1) % GRID_WIDTH] +
-                    grid[y % GRID_HEIGHT, (x + 1) % GRID_WIDTH] + grid[(y + 1) % GRID_HEIGHT, (x - 1) % GRID_WIDTH] +
-                    grid[(y + 1) % GRID_HEIGHT, x % GRID_WIDTH] + grid[(y + 1) % GRID_HEIGHT, (x + 1) % GRID_WIDTH]
+                grid[(y - 1) % GRID_HEIGHT, (x - 1) % GRID_WIDTH] + grid[(y - 1) % GRID_HEIGHT, x % GRID_WIDTH] +
+                grid[(y - 1) % GRID_HEIGHT, (x + 1) % GRID_WIDTH] + grid[y % GRID_HEIGHT, (x - 1) % GRID_WIDTH] +
+                grid[y % GRID_HEIGHT, (x + 1) % GRID_WIDTH] + grid[(y + 1) % GRID_HEIGHT, (x - 1) % GRID_WIDTH] +
+                grid[(y + 1) % GRID_HEIGHT, x % GRID_WIDTH] + grid[(y + 1) % GRID_HEIGHT, (x + 1) % GRID_WIDTH]
             )
-            if grid[y, x] == 1:
-                if num_alive_neighbors < 2 or num_alive_neighbors > 3:
-                    new_grid[y, x] = 0
-            else:
-                if num_alive_neighbors == 3:
+            if rule == 'Conway':
+                if grid[y, x] == 1:
+                    if num_alive_neighbors < 2 or num_alive_neighbors > 3:
+                        new_grid[y, x] = 0
+                else:
+                    if num_alive_neighbors == 3:
+                        new_grid[y, x] = 1
+            elif rule == 'HighLife':
+                if grid[y, x] == 1:
+                    if num_alive_neighbors < 2 or num_alive_neighbors > 3:
+                        new_grid[y, x] = 0
+                else:
+                    if num_alive_neighbors == 3 or num_alive_neighbors == 6:
+                        new_grid[y, x] = 1
+            elif rule == 'LifeWithoutDeath':
+                if grid[y, x] == 0 and num_alive_neighbors == 3:
                     new_grid[y, x] = 1
+            elif rule == '34Life':
+                if grid[y, x] == 1:
+                    if num_alive_neighbors != 3 and num_alive_neighbors != 4:
+                        new_grid[y, x] = 0
+                else:
+                    if num_alive_neighbors == 3 or num_alive_neighbors == 4:
+                        new_grid[y, x] = 1
+            elif rule == 'Seeds':
+                if grid[y, x] == 1:
+                    new_grid[y, x] = 0
+                else:
+                    if num_alive_neighbors == 2:
+                        new_grid[y, x] = 1
     return new_grid
 
 
@@ -108,6 +135,7 @@ def main():
     running = True
     paused = False
     speed = 5
+    rule = 'Conway'  # default rule
 
     while running:
         for event in pygame.event.get():
@@ -122,13 +150,23 @@ def main():
                     speed = min(60, speed + 1)
                 elif event.key == pygame.K_DOWN:
                     speed = max(1, speed - 1)
+                elif event.key == pygame.K_1:
+                    rule = 'Conway'
+                elif event.key == pygame.K_2:
+                    rule = 'HighLife'
+                elif event.key == pygame.K_3:
+                    rule = 'LifeWithoutDeath'
+                elif event.key == pygame.K_4:
+                    rule = '34Life'
+                elif event.key == pygame.K_5:
+                    rule = 'Seeds'
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 x, y = pygame.mouse.get_pos()
                 toggle_cell(grid, x // CELL_SIZE, y // CELL_SIZE)
 
         if not paused:
             prev_grid = np.copy(grid)
-            grid = update(grid)
+            grid = update(grid, rule)
 
         screen.fill(COLOR_BG)
         draw_cells(grid, prev_grid)
